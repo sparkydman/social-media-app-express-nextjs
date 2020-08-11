@@ -52,3 +52,25 @@ exports.getUserProfile = async (req, res) => {
   }
   res.json(req.profile);
 };
+
+exports.addFollowing = async (req, res, next) => {
+  const { followId } = req.body;
+  await User.findOneAndUpdate(
+    { _id: req.user._id },
+    {
+      $push: { following: followId },
+    }
+  );
+  next();
+};
+
+exports.addFollower = async (req, res) => {
+  const { followId } = req.body;
+
+  const user = await User.findByIdAndUpdate(
+    { _id: followId },
+    { $push: { following: req.user._id } },
+    { new: true }
+  );
+  res.status(200).json(user);
+};

@@ -6,6 +6,8 @@ const {
   deleteUser,
   getAuthUser,
   getUserProfile,
+  addFollowing,
+  addFollower,
 } = require("../controller/userController");
 const router = express.Router();
 
@@ -18,6 +20,8 @@ const router = express.Router();
 router.param("userId", getUserById);
 
 router.get("/", catchErrors(allUser));
+
+router.put("/follow", catchErrors(addFollowing), catchErrors(addFollower));
 
 router.route("/:userId").get(getAuthUser).delete(catchErrors(deleteUser));
 router.get("/profile/:userId", getUserProfile);
