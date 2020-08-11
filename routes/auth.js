@@ -6,14 +6,9 @@ const {
   signOut,
 } = require("../controller/authController");
 
-const router = express.Router();
+const { catchErrors } = require("../util/catchErrors");
 
-/* Error handler for async / await functions */
-const catchErrors = (fn) => {
-  return function (req, res, next) {
-    return fn(req, res, next).catch(next);
-  };
-};
+const router = express.Router();
 
 /**
  * AUTH ROUTES

@@ -71,7 +71,7 @@ exports.signOut = (req, res) => {
 };
 
 exports.requiredAuth = async (req, res, next) => {
-  if (req.authenticate) {
+  if (req.isAuthenticated()) {
     return next();
   }
   res.redirect("/signin");

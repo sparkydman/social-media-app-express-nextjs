@@ -11,6 +11,7 @@ const MongoStoreSession = require("connect-mongo")(session);
 require("./models/Post");
 require("./models/User");
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user");
 
 require("./passport");
 
@@ -77,6 +78,7 @@ app.use(logger("dev"));
 
 /* apply routes from the "routes" folder */
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 
 /* Error handling from async / await functions */
 app.use((err, req, res, next) => {
