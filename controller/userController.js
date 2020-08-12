@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const multer = require("multer");
+const jimp = require("jimp");
 
 const User = mongoose.model("User");
 
@@ -104,4 +106,54 @@ exports.getUserFeed = async (req, res) => {
     "_id name avatar"
   );
   res.json(users);
+};
+
+const imgOptions = {
+  storage: multer.memoryStorage(),
+  limits: {
+    // file size should be 1mb
+    fileSize: 1024 * 1024 * 1,
+  },
+  fileFilter: (req, file, next) => {
+    if (file.mimetype.startsWith("image/")) {
+      next(null, true);
+    } else {
+      next(null, false);
+    }
+  },
+};
+
+exports.upLoadAvatar = multer(imgOptions).single("avatar");
+
+exports.resizeAvatar = async (req, res, next) => {
+  if (!req.file) {
+    return next();
+  }
+  const extension = req.file.mimetype.split("/")[1];
+  req.body.avatar = `/public/uploads/avatars/${
+    req.user.name
+  }-${Date.now()}.${extension}`;
+  const image = await jimp.read(req.file.buffer);
+  await image.resize(250, jimp.AUTO);
+  await image.write(`./${req.body.avatar}`);
+  next();
+};
+
+exports.updateUser = async (req, res) => {
+  const user = await User.findOne({ _id: req.user._id }).select(
+    "name email avatar about"
+  );
+  const argBody = {
+    name: req.body.name || user.name,
+    email: req.body.email || user.email,
+    avatar: req.body.avatar || user.avatar,
+    about: req.body.about || user.about,
+  };
+
+  const updatedUser = await User.findOneAndUpdate(
+    { _id: req.user._id },
+    { $set: argBody },
+    { new: true, runValidators: true }
+  );
+  res.json(updatedUser);
 };

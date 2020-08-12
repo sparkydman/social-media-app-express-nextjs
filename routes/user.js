@@ -12,6 +12,9 @@ const {
   delFollower,
   delFollowing,
   getUserFeed,
+  upLoadAvatar,
+  resizeAvatar,
+  updateUser,
 } = require("../controller/userController");
 const router = express.Router();
 
@@ -31,6 +34,12 @@ router.put("/unfollow", catchErrors(delFollowing), catchErrors(delFollower));
 router
   .route("/:userId")
   .get(getAuthUser)
+  .put(
+    requiredAuth,
+    upLoadAvatar,
+    catchErrors(resizeAvatar),
+    catchErrors(updateUser)
+  )
   .delete(requiredAuth, catchErrors(deleteUser));
 router.get("/profile/:userId", getUserProfile);
 
