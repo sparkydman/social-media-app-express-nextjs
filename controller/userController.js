@@ -95,3 +95,13 @@ exports.delFollower = async (req, res) => {
   );
   res.status(200).json(user);
 };
+
+exports.getUserFeed = async (req, res) => {
+  const { following, _id } = req.profile;
+
+  following.push(_id);
+  const users = await User.find({ _id: { $nin: following } }).select(
+    "_id name avatar"
+  );
+  res.json(users);
+};
