@@ -9,6 +9,7 @@ const {
   getPostsByUser,
   getPostFeed,
   toggleLike,
+  toggleComment,
 } = require("../controller/postController");
 
 const router = express.Router();
@@ -23,6 +24,9 @@ router.param("userId", getUserById);
 
 router.put("/like", requiredAuth, catchErrors(toggleLike));
 router.put("/unlike", requiredAuth, catchErrors(toggleLike));
+
+router.put("/comment", requiredAuth, catchErrors(toggleComment));
+router.put("/uncomment", requiredAuth, catchErrors(toggleComment));
 
 router.post(
   "/new/:userId",
