@@ -6,6 +6,8 @@ const {
   resizeImage,
   upLoadImage,
   addPost,
+  getPostsByUser,
+  getPostFeed,
 } = require("../controller/postController");
 
 const router = express.Router();
@@ -25,5 +27,8 @@ router.post(
   catchErrors(resizeImage),
   catchErrors(addPost)
 );
+
+router.get("/by/:userId", requiredAuth, catchErrors(getPostsByUser));
+router.get("/feed/:userId", requiredAuth, catchErrors(getPostFeed));
 
 module.exports = router;
