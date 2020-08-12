@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const multer = require("multer");
 const jimp = require("jimp");
+const fs = require("fs");
+const path = require("path");
 
 const Post = mongoose.model("Post");
 
@@ -26,9 +28,10 @@ exports.resizeImage = async (req, res, next) => {
     return next();
   }
   const extension = req.file.mimetype.split("/")[1];
-  req.body.image = `/public/uploads/${
-    req.user.name
-  }-${Date.now()}.${extension}`;
+  req.body.image = `/public/uploads/${req.user.name.replace(
+    /\s/g,
+    "-"
+  )}-${Date.now()}.${extension}`;
   const image = await jimp.read(req.file.buffer);
   await image.resize(750, jimp.AUTO);
   await image.write(`./${req.body.image}`);
@@ -97,5 +100,59 @@ exports.toggleComment = async (req, res) => {
   )
     .populate("postedBy", "_id name avatar")
     .populate("comments.postedBy", "_id name avatar");
+  res.json(updatedPost);
+};
+
+exports.findPostById = async (req, res, next, id) => {
+  const post = await Post.findOne({ _id: id });
+  req.post = post;
+
+  const posterId = mongoose.Types.ObjectId(req.post.postedBy._id);
+  if (req.user && posterId.equals(req.user._id)) {
+    req.isPoster = true;
+    return next();
+  }
+  next();
+};
+
+exports.deletePost = async (req, res) => {
+  const { _id } = req.post;
+
+  if (!req.isPoster) {
+    return res.status(400).json({
+      message: "You are not authorized to perform this action",
+    });
+  }
+  const deletedPost = await Post.findOneAndDelete({ _id });
+  fs.unlink(path.join(__dirname, "..", deletedPost.image), (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
+  res.json(deletedPost);
+};
+
+exports.updatePost = async (req, res) => {
+  const { postId } = req.params;
+  const { text, image } = req.body;
+  const post = await Post.findOne({ _id: postId });
+
+  if (image) {
+    fs.unlink(path.join(__dirname, "..", post.image), (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+  }
+  const argBody = {
+    text: text || post.text,
+    image: image || post.image,
+  };
+
+  const updatedPost = await Post.findOneAndUpdate(
+    { _id: postId },
+    { $set: argBody },
+    { new: true }
+  );
   res.json(updatedPost);
 };

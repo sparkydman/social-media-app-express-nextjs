@@ -10,6 +10,9 @@ const {
   getPostFeed,
   toggleLike,
   toggleComment,
+  findPostById,
+  deletePost,
+  updatePost,
 } = require("../controller/postController");
 
 const router = express.Router();
@@ -21,6 +24,7 @@ const router = express.Router();
  */
 
 router.param("userId", getUserById);
+router.param("postId", findPostById);
 
 router.put("/like", requiredAuth, catchErrors(toggleLike));
 router.put("/unlike", requiredAuth, catchErrors(toggleLike));
@@ -38,5 +42,15 @@ router.post(
 
 router.get("/by/:userId", requiredAuth, catchErrors(getPostsByUser));
 router.get("/feed/:userId", requiredAuth, catchErrors(getPostFeed));
+
+router
+  .route("/:postId")
+  .put(
+    requiredAuth,
+    upLoadImage,
+    catchErrors(resizeImage),
+    catchErrors(updatePost)
+  )
+  .delete(requiredAuth, catchErrors(deletePost));
 
 module.exports = router;

@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const multer = require("multer");
 const jimp = require("jimp");
+const fs = require("fs");
+const path = require("path");
 
 const User = mongoose.model("User");
 
@@ -35,6 +37,11 @@ exports.deleteUser = async (req, res) => {
       .json({ message: "You are not authorized to perform this action" });
   }
   const delUser = await User.findOneAndDelete({ _id: userId });
+  fs.unlink(path.join(__dirname, "..", delUser.avatar), (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
   res.status(200).json(delUser);
 };
 
@@ -130,9 +137,10 @@ exports.resizeAvatar = async (req, res, next) => {
     return next();
   }
   const extension = req.file.mimetype.split("/")[1];
-  req.body.avatar = `/public/uploads/avatars/${
-    req.user.name
-  }-${Date.now()}.${extension}`;
+  req.body.avatar = `/public/uploads/avatars/${req.user.name.replace(
+    /\s/g,
+    "-"
+  )}-${Date.now()}.${extension}`;
   const image = await jimp.read(req.file.buffer);
   await image.resize(250, jimp.AUTO);
   await image.write(`./${req.body.avatar}`);
@@ -155,5 +163,11 @@ exports.updateUser = async (req, res) => {
     { $set: argBody },
     { new: true, runValidators: true }
   );
+
+  fs.unlink(path.join(__dirname, "..", user.avatar), (err) => {
+    if (err) {
+      console.log(err);
+    }
+  });
   res.json(updatedUser);
 };
