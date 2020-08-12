@@ -12,6 +12,7 @@ require("./models/Post");
 require("./models/User");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
+const postRoutes = require("./routes/post");
 
 require("./passport");
 
@@ -79,6 +80,7 @@ app.use(logger("dev"));
 /* apply routes from the "routes" folder */
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/posts", postRoutes);
 
 /* Error handling from async / await functions */
 app.use((err, req, res, next) => {

@@ -21,7 +21,7 @@ const router = express.Router();
 /**
  * USER ROUTES:
  * ROOT ROUTE: /api/user
- * ENDPOINTS: /users, /user/:userid
+ * ENDPOINTS: /, /user/:userid, /follow, /unfollow, /feed/:userId, /profile:userId
  */
 
 router.param("userId", getUserById);

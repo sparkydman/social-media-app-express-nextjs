@@ -108,7 +108,7 @@ exports.getUserFeed = async (req, res) => {
   res.json(users);
 };
 
-const imgOptions = {
+const avatarOptions = {
   storage: multer.memoryStorage(),
   limits: {
     // file size should be 1mb
@@ -123,7 +123,7 @@ const imgOptions = {
   },
 };
 
-exports.upLoadAvatar = multer(imgOptions).single("avatar");
+exports.upLoadAvatar = multer(avatarOptions).single("avatar");
 
 exports.resizeAvatar = async (req, res, next) => {
   if (!req.file) {

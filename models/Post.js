@@ -19,7 +19,9 @@ const postSchema = new mongoose.Schema(
       },
     ],
     postedBy: { type: ObjectId, ref: "User" },
-    createdAt: { type: Date, default: Date.now },
+  },
+  {
+    timestamps: true,
   },
   {
     autoIndex: false,
