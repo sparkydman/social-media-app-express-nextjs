@@ -8,6 +8,7 @@ const {
   addPost,
   getPostsByUser,
   getPostFeed,
+  toggleLike,
 } = require("../controller/postController");
 
 const router = express.Router();
@@ -15,10 +16,13 @@ const router = express.Router();
 /**
  * POST ROUTES
  * ROOT ROUTE: /api/posts
- * END POINTS: /new/:userId
+ * END POINTS: /new/:userId, /like, /unlike, /by/:userId, /feed/:userId
  */
 
 router.param("userId", getUserById);
+
+router.put("/like", requiredAuth, catchErrors(toggleLike));
+router.put("/unlike", requiredAuth, catchErrors(toggleLike));
 
 router.post(
   "/new/:userId",

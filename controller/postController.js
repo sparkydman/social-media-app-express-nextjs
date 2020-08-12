@@ -60,3 +60,18 @@ exports.getPostFeed = async (req, res) => {
   }).sort({ updatedAt: "desc" });
   res.json(posts);
 };
+
+exports.toggleLike = async (req, res) => {
+  const { postId } = req.body;
+
+  const post = await Post.findOne({ _id: postId });
+  const likedIds = post.likes.map((id) => id.toString());
+  const authUserId = req.user._id.toString();
+  if (likedIds.includes(authUserId)) {
+    await post.likes.pull(authUserId);
+  } else {
+    await post.likes.push(authUserId);
+  }
+  await post.save();
+  res.json(post);
+};
