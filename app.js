@@ -1,4 +1,5 @@
 const express = require("express");
+const next = require("next");
 const dotenv = require("dotenv");
 const logger = require("morgan");
 const mongoose = require("mongoose");
@@ -22,6 +23,8 @@ dotenv.config({ path: "./config/config.env" });
 const dev = process.env.NODE_ENV !== "production";
 const PORT = process.env.PORT || 8080;
 const ROOT_URL = dev ? `http://localhost:${PORT}` : process.env.PRODUCTION_URL;
+const nxtApp = next({ dev });
+const handle = nxtApp.getRequestHandler();
 
 mongoose
   .connect(process.env.MONGO_URI, {
@@ -36,58 +39,83 @@ mongoose.connection.on("error", (err) =>
   console.log("DB error: ", err.message)
 );
 
-// Initialize express
-const app = express();
+nxtApp.prepare().then(() => {
+  // Initialize express
+  const app = express();
 
-// Add JSON middleware
-app.use(express.json());
+  // Add JSON middleware
+  app.use(express.json());
 
-/* Express Validator middleware to validate form data*/
-app.use(expressValidator());
+  /* Express Validator middleware to validate form data*/
+  app.use(expressValidator());
 
-// Make public a static folder
-app.set(express.static(require("path").join(__dirname, "public")));
+  // Make public a static folder
+  // app.set(express.static(require("path").join(__dirname, "public")));
 
-app.use(
-  session({
-    name: "next-connect.sid",
-    secret: process.env.SESSION_KEY,
-    store: new MongoStoreSession({
-      mongooseConnection: mongoose.connection,
-    }),
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 14, // expires in 14 days
-    },
-  })
-);
+  /* give all Next.js's requests to Next.js server */
+  app.get("/_next/*", (req, res) => {
+    handle(req, res);
+  });
 
-// Set up passport middleware
-app.use(passport.initialize());
-app.use(passport.session());
+  app.get("/public/*", (req, res) => {
+    handle(req, res);
+  });
 
-app.use((req, res, next) => {
-  /* middleware for user data from passport on the req.user so as to access the user from anywhere t=in the app */
-  res.locals.use = req.user || null;
-  next();
-});
+  app.use(
+    session({
+      name: "next-connect.sid",
+      secret: process.env.SESSION_KEY,
+      store: new MongoStoreSession({
+        mongooseConnection: mongoose.connection,
+      }),
+      resave: false,
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24 * 14, // expires in 14 days
+      },
+    })
+  );
 
-// Add morgan logger for dev env
-app.use(logger("dev"));
+  // Set up passport middleware
+  app.use(passport.initialize());
+  app.use(passport.session());
 
-/* apply routes from the "routes" folder */
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/posts", postRoutes);
+  app.use((req, res, next) => {
+    /* middleware for user data from passport on the req.user so as to access the user from anywhere t=in the app */
+    res.locals.use = req.user || null;
+    next();
+  });
 
-/* Error handling from async / await functions */
-app.use((err, req, res, next) => {
-  const { status = 500, message } = err;
-  res.status(status).json(message);
-});
+  // Add morgan logger for dev env
+  app.use(logger("dev"));
 
-app.listen(PORT, () => {
-  console.log(`App is ready on ${ROOT_URL}!`);
+  /* apply routes from the "routes" folder */
+  app.use("/api/auth", authRoutes);
+  app.use("/api/users", userRoutes);
+  app.use("/api/posts", postRoutes);
+
+  /* Error handling from async / await functions */
+  app.use((err, req, res, next) => {
+    const { status = 500, message } = err;
+    res.status(status).json(message);
+  });
+
+  /* create custom routes with route params */
+  app.get("/profile/:userId", (req, res) => {
+    const routeParams = Object.assign({}, req.params, req.query);
+    return app.render(req, res, "/profile", routeParams);
+  });
+
+  /* default route
+     - allows Next to handle all other routes
+     - includes the numerous `/_next/...` routes which must    be exposedfor the next app to work correctly
+     - includes 404'ing on unknown routes */
+  app.get("*", (req, res) => {
+    handle(req, res);
+  });
+
+  app.listen(PORT, () => {
+    console.log(`App is ready on ${ROOT_URL} !`);
+  });
 });
