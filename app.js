@@ -102,10 +102,10 @@ nxtApp.prepare().then(() => {
   });
 
   /* create custom routes with route params */
-  app.get("/profile/:userId", (req, res) => {
-    const routeParams = Object.assign({}, req.params, req.query);
-    return app.render(req, res, "/profile", routeParams);
-  });
+  // app.get("/profile/:userId", (req, res) => {
+  //   const routeParams = Object.assign({}, req.params, req.query);
+  //   return app.render(req, res, "/profile", routeParams);
+  // });
 
   /* default route
      - allows Next to handle all other routes

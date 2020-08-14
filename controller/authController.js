@@ -74,5 +74,5 @@ exports.requiredAuth = async (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect("/api/auth/signin");
+  res.redirect("/signin");
 };

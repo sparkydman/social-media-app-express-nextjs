@@ -28,7 +28,7 @@ exports.resizeImage = async (req, res, next) => {
     return next();
   }
   const extension = req.file.mimetype.split("/")[1];
-  req.body.image = `/public/uploads/${req.user.name.replace(
+  req.body.image = `/uploads/${req.user.name.replace(
     /\s/g,
     "-"
   )}-${Date.now()}.${extension}`;

@@ -1,6 +1,7 @@
 import { withRouter } from "next/router";
+import Link from "next/link";
 
-const ActiveLink = ({ router, href, children }) => {
+const ActiveLink = ({ router, href, children, dynamicLink }) => {
   (function prefetchPages() {
     if (typeof window !== "undefined") {
       router.prefetch(router.pathname);
@@ -15,10 +16,8 @@ const ActiveLink = ({ router, href, children }) => {
   const isCurrentPath = router.pathname === href || router.asPath === href;
 
   return (
-    <div>
+    <Link href={href} as={dynamicLink}>
       <a
-        href={href}
-        onClick={handleClick}
         style={{
           textDecoration: "none",
           margin: 0,
@@ -29,7 +28,7 @@ const ActiveLink = ({ router, href, children }) => {
       >
         {children}
       </a>
-    </div>
+    </Link>
   );
 };
 

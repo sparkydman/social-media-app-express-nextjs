@@ -50,7 +50,7 @@ exports.getAuthUser = async (req, res) => {
     res
       .status(401)
       .json({ message: "You are not authenticated user signup or signin" });
-    return res.redirect("/api/auth/signin");
+    return res.redirect("/signin");
   }
   res.json(req.user);
 };
@@ -137,7 +137,7 @@ exports.resizeAvatar = async (req, res, next) => {
     return next();
   }
   const extension = req.file.mimetype.split("/")[1];
-  req.body.avatar = `/public/uploads/avatars/${req.user.name.replace(
+  req.body.avatar = `/uploads/avatars/${req.user.name.replace(
     /\s/g,
     "-"
   )}-${Date.now()}.${extension}`;

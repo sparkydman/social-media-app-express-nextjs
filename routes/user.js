@@ -33,7 +33,7 @@ router.put("/unfollow", catchErrors(delFollowing), catchErrors(delFollower));
 
 router
   .route("/:userId")
-  .get(getAuthUser)
+  .get(requiredAuth, catchErrors(getAuthUser))
   .put(
     requiredAuth,
     upLoadAvatar,

@@ -4,7 +4,7 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import ShareOutlined from "@material-ui/icons/ShareOutlined";
 import withStyles from "@material-ui/core/styles/withStyles";
-
+import Link from "next/link";
 import ActiveLink from "./ActiveLink";
 import { signoutUser } from "../lib/auth";
 
@@ -33,7 +33,12 @@ const Navbar = ({ classes, router, pageProps: { auth } }) => {
           // Auth Navigation
           <div>
             <Button>
-              <ActiveLink href="/profile">Profile</ActiveLink>
+              <ActiveLink
+                href="/profile/[userId]"
+                dynamicLink={`/profile/${user._id}`}
+              >
+                Profile
+              </ActiveLink>
             </Button>
             <Button onClick={signoutUser} variant="outlined">
               Sign out
