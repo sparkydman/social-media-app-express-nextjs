@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Typography from "@material-ui/core/Typography";
 import Avatar from "@material-ui/core/Avatar";
 import FormControl from "@material-ui/core/FormControl";
@@ -17,25 +18,66 @@ import VerifiedUserTwoTone from "@material-ui/icons/VerifiedUserTwoTone";
 import withStyles from "@material-ui/core/styles/withStyles";
 import { signUpUser } from "../lib/auth";
 
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 class Signup extends React.Component {
   state = {
     name: "",
     email: "",
     password: "",
+    about: "",
+    createdUser: null,
+    error: "",
+    openError: false,
+    openSuccess: false,
+    isLoading: false,
   };
 
   handleChange = (event) => {
     this.setState({ [event.target.name]: event.target.value });
   };
 
+  showError = (err) => {
+    const error = (err.response && err.response.data) || err.message;
+    this.setState({ error, openError: true, isLoading: false });
+  };
+
   handleSubmit = (event) => {
     event.preventDefault();
     const { name, email, password } = this.state;
-    signUpUser({ name, email, password });
+    this.setState({ isLoading: true });
+    signUpUser({ name, email, password })
+      .then((createdUser) =>
+        this.setState({
+          createdUser,
+          error: "",
+          name: "",
+          email: "",
+          password: "",
+          about: "",
+          openSuccess: true,
+          isLoading: false,
+        })
+      )
+      .catch(this.showError);
   };
+
+  handleClose = () => this.setState({ openError: false });
 
   render() {
     const { classes } = this.props;
+    const {
+      name,
+      email,
+      password,
+      about,
+      error,
+      openError,
+      createdUser,
+      openSuccess,
+      isLoading,
+    } = this.state;
     return (
       <div className={classes.root}>
         <Paper className={classes.paper}>
@@ -48,11 +90,21 @@ class Signup extends React.Component {
           <form onSubmit={this.handleSubmit} className={classes.form}>
             <FormControl margin="normal" required fullWidth>
               <InputLabel htmlFor="name">Name</InputLabel>
-              <Input name="name" type="text" onChange={this.handleChange} />
+              <Input
+                name="name"
+                type="text"
+                onChange={this.handleChange}
+                value={name}
+              />
             </FormControl>
             <FormControl margin="normal" required fullWidth>
               <InputLabel htmlFor="email">Email</InputLabel>
-              <Input name="email" type="email" onChange={this.handleChange} />
+              <Input
+                name="email"
+                type="email"
+                onChange={this.handleChange}
+                value={email}
+              />
             </FormControl>
             <FormControl margin="normal" required fullWidth>
               <InputLabel htmlFor="password">Password</InputLabel>
@@ -60,19 +112,67 @@ class Signup extends React.Component {
                 name="password"
                 type="password"
                 onChange={this.handleChange}
+                value={password}
+              />
+            </FormControl>
+            <FormControl margin="normal" fullWidth>
+              <InputLabel htmlFor="about">About</InputLabel>
+              <Input
+                name="about"
+                multiline
+                rows={2}
+                rowsMax={6}
+                onChange={this.handleChange}
+                value={about}
               />
             </FormControl>
             <Button
               type="submit"
               fullWidth
+              disabled={isLoading}
               variant="contained"
               color="primary"
               className={classes.submit}
             >
-              Sign up
+              {isLoading ? "Signing up..." : "Sign up"}
             </Button>
           </form>
+          {error && (
+            <Snackbar
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "right",
+              }}
+              open={openError}
+              autoHideDuration={6000}
+              onClose={this.handleClose}
+              message={<span className={classes.snack}>{error}</span>}
+            />
+          )}
         </Paper>
+
+        <Dialog
+          open={openSuccess}
+          disableBackdropClick={true}
+          TransitionComponent={Transition}
+        >
+          <DialogTitle>
+            <VerifiedUserTwoTone className={classes.icon} />
+            New Account
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              User {createdUser} successfully created!
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button color="primary" variant="contained">
+              <Link href="/signin">
+                <a className={classes.signinLink}>Sign in</a>
+              </Link>
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }
@@ -117,7 +217,7 @@ const styles = (theme) => ({
     marginTop: theme.spacing(1) * 2,
   },
   snack: {
-    color: theme.palette.protectedTitle,
+    color: theme.palette.secondary.light,
   },
   icon: {
     padding: "0px 2px 2px 0px",

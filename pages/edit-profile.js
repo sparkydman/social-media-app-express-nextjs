@@ -16,6 +16,7 @@
 // import FaceTwoTone from "@material-ui/icons/FaceTwoTone";
 // import EditSharp from "@material-ui/icons/EditSharp";
 import withStyles from "@material-ui/core/styles/withStyles";
+import { authInitialProps } from "../lib/auth";
 
 class EditProfile extends React.Component {
   state = {};
@@ -25,66 +26,68 @@ class EditProfile extends React.Component {
   }
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
     width: "auto",
     display: "block",
-    marginLeft: theme.spacing.unit * 3,
-    marginRight: theme.spacing.unit * 3,
+    marginLeft: theme.spacing(1) * 3,
+    marginRight: theme.spacing(1) * 3,
     [theme.breakpoints.up("md")]: {
       width: 400,
       marginLeft: "auto",
-      marginRight: "auto"
-    }
+      marginRight: "auto",
+    },
   },
   bigAvatar: {
     width: 60,
     height: 60,
-    margin: "auto"
+    margin: "auto",
   },
   uploadButton: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    margin: "0.25em"
+    margin: "0.25em",
   },
   paper: {
-    marginTop: theme.spacing.unit * 8,
+    marginTop: theme.spacing(1) * 8,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    padding: theme.spacing.unit * 2
+    padding: theme.spacing(1) * 2,
   },
   signinLink: {
     textDecoration: "none",
-    color: "white"
+    color: "white",
   },
   title: {
-    marginTop: theme.spacing.unit * 2,
-    color: theme.palette.openTitle
+    marginTop: theme.spacing(1) * 2,
+    color: theme.palette.openTitle,
   },
   avatar: {
-    margin: theme.spacing.unit,
-    backgroundColor: theme.palette.secondary.main
+    margin: theme.spacing(1),
+    backgroundColor: theme.palette.secondary.main,
   },
   form: {
     width: "100%",
-    marginTop: theme.spacing.unit
+    marginTop: theme.spacing(1),
   },
   submit: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: theme.spacing(1) * 2,
   },
   snack: {
-    color: theme.palette.protectedTitle
+    color: theme.palette.protectedTitle,
   },
   icon: {
     padding: "0px 2px 2px 0px",
     verticalAlign: "middle",
-    color: "green"
+    color: "green",
   },
   input: {
-    display: "none"
-  }
+    display: "none",
+  },
 });
+
+EditProfile.getInitialProps = authInitialProps(true);
 
 export default withStyles(styles)(EditProfile);

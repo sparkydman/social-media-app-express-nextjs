@@ -11,6 +11,7 @@
 // import Divider from "@material-ui/core/Divider";
 // import Edit from "@material-ui/icons/Edit";
 import withStyles from "@material-ui/core/styles/withStyles";
+import { authInitialProps } from "../lib/auth";
 
 class Profile extends React.Component {
   state = {};
@@ -20,32 +21,34 @@ class Profile extends React.Component {
   }
 }
 
-const styles = theme => ({
+const styles = (theme) => ({
   root: {
-    padding: theme.spacing.unit * 3,
-    marginTop: theme.spacing.unit * 5,
+    padding: theme.spacing(1) * 3,
+    marginTop: theme.spacing(1) * 5,
     margin: "auto",
     [theme.breakpoints.up("sm")]: {
-      width: 600
-    }
+      width: 600,
+    },
   },
   title: {
-    color: theme.palette.openTitle
+    color: theme.palette.openTitle,
   },
   progress: {
-    margin: theme.spacing.unit * 2
+    margin: theme.spacing(1) * 2,
   },
   progressContainer: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   bigAvatar: {
     width: 60,
     height: 60,
-    margin: 10
-  }
+    margin: 10,
+  },
 });
+
+Profile.getInitialProps = authInitialProps(true);
 
 export default withStyles(styles)(Profile);

@@ -27,7 +27,7 @@ exports.validateSignUp = (req, res, next) => {
   const errors = req.validationErrors();
   if (errors) {
     const firstError = errors.map((err) => err.msg)[0];
-    return res.status(400).send(firstError);
+    return res.status(400).json(firstError);
   }
   next();
 };
@@ -38,7 +38,7 @@ exports.signUp = async (req, res) => {
     const user = await new User({ name, email, password, about });
     await User.register(user, password, (err, user) => {
       if (err) {
-        return res.status(500).send(err.message);
+        return res.status(500).json(err.message);
       }
       return res.json(user.name);
     });
