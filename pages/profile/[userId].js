@@ -14,11 +14,13 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import { authInitialProps } from "../../lib/auth";
 import { getUser } from "../../lib/api";
 import Link from "next/link";
-
+import FollowUser from "../../components/profile/FollowUser";
+import DeleteUser from "../../components/profile/DeleteUser";
 class Profile extends React.Component {
   state = {
     user: null,
     isAuth: false,
+    isFollowing: false,
     isLoading: true,
   };
 
@@ -26,13 +28,30 @@ class Profile extends React.Component {
     const { userId, auth } = this.props;
     const isAuth = auth.user._id === userId;
     getUser(userId).then((user) => {
-      this.setState({ user, isAuth, isLoading: false });
+      const isFollowing = this.checkFollow(auth, user);
+      this.setState({ user, isAuth, isLoading: false, isFollowing });
     });
   }
 
+  checkFollow = (auth, user) => {
+    return (
+      user.following.findIndex((following) => following._id === auth.user._id) >
+      -1
+    );
+  };
+
+  toggleFollow = (sendRequest) => {
+    const { userId } = this.props;
+    const { isFollowing } = this.state;
+
+    sendRequest(userId).then(() =>
+      this.setState({ isFollowing: !isFollowing })
+    );
+  };
   render() {
     const { classes } = this.props;
-    const { isLoading, user, isAuth } = this.state;
+    const { isLoading, user, isAuth, isFollowing } = this.state;
+    // console.log(isFollowing);
     return (
       <Paper className={classes.root} elevation={4}>
         <Typography
@@ -40,6 +59,7 @@ class Profile extends React.Component {
           component="h1"
           align="center"
           className={classes.title}
+          color="primary"
         >
           Profile
         </Typography>
@@ -55,21 +75,25 @@ class Profile extends React.Component {
           <List dense>
             <ListItem>
               <ListItemAvatar>
-                <Avatar src={user.Avatar} className={classes.bigAvatar} />
+                <Avatar src={user.avatar} className={classes.bigAvatar} />
               </ListItemAvatar>
               <ListItemText primary={user.name} secondary={user.email} />
               {isAuth ? (
                 <ListItemSecondaryAction>
-                  <Link href="/edit-profile">
+                  <Link href="/edit-profile/[userId]" as={`/edit-profile/${user._id}`}>
                     <a>
                       <IconButton color="primary">
                         <Edit />
                       </IconButton>
                     </a>
                   </Link>
+                  <DeleteUser user={user} />
                 </ListItemSecondaryAction>
               ) : (
-                <div>Follow</div>
+                <FollowUser
+                  isFollowing={isFollowing}
+                  toggleFollow={this.toggleFollow}
+                />
               )}
             </ListItem>
             <Divider />

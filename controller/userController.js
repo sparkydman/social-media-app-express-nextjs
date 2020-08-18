@@ -137,13 +137,13 @@ exports.resizeAvatar = async (req, res, next) => {
     return next();
   }
   const extension = req.file.mimetype.split("/")[1];
-  req.body.avatar = `/uploads/avatars/${req.user.name.replace(
+  req.body.avatar = `/${req.user.name.replace(
     /\s/g,
     "-"
   )}-${Date.now()}.${extension}`;
   const image = await jimp.read(req.file.buffer);
   await image.resize(250, jimp.AUTO);
-  await image.write(`./${req.body.avatar}`);
+  await image.write(`./public/${req.body.avatar}`);
   next();
 };
 
@@ -164,10 +164,12 @@ exports.updateUser = async (req, res) => {
     { new: true, runValidators: true }
   );
 
-  fs.unlink(path.join(__dirname, "..", user.avatar), (err) => {
-    if (err) {
-      console.log(err);
-    }
-  });
+  if (req.body.avatar) {
+    fs.unlink(path.join(__dirname, "..", user.avatar), (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+  }
   res.json(updatedUser);
 };

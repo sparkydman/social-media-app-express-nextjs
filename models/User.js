@@ -15,13 +15,14 @@ const userSchema = new mongoose.Schema(
     name: {
       type: String,
       unique: true,
-      lowercase: true,
       trim: true,
       required: "Name is required",
+      minlength: [4, "Name should not be less than 4 characters"],
     },
     avatar: {
       type: String,
-      default: "/public/img/profile-image.jpg",
+      trim: false,
+      default: "/profile-image.jpg",
       required: "Avatar image is required",
     },
     about: {
