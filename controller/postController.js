@@ -124,7 +124,7 @@ exports.deletePost = async (req, res) => {
     });
   }
   const deletedPost = await Post.findOneAndDelete({ _id });
-  fs.unlink(path.join(__dirname, "..", deletedPost.image), (err) => {
+  fs.unlink(path.join(__dirname, "..", "public", deletedPost.image), (err) => {
     if (err) {
       console.log(err);
     }
@@ -137,13 +137,6 @@ exports.updatePost = async (req, res) => {
   const { text, image } = req.body;
   const post = await Post.findOne({ _id: postId });
 
-  if (image) {
-    fs.unlink(path.join(__dirname, "..", post.image), (err) => {
-      if (err) {
-        console.log(err);
-      }
-    });
-  }
   const argBody = {
     text: text || post.text,
     image: image || post.image,
@@ -154,5 +147,12 @@ exports.updatePost = async (req, res) => {
     { $set: argBody },
     { new: true }
   );
+  if (image) {
+    fs.unlink(path.join(__dirname, "..", "public", post.image), (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+  }
   res.json(updatedPost);
 };

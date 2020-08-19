@@ -37,7 +37,7 @@ exports.deleteUser = async (req, res) => {
       .json({ message: "You are not authorized to perform this action" });
   }
   const delUser = await User.findOneAndDelete({ _id: userId });
-  fs.unlink(path.join(__dirname, "..", delUser.avatar), (err) => {
+  fs.unlink(path.join(__dirname, "..", "public", delUser.avatar), (err) => {
     if (err) {
       console.log(err);
     }
@@ -165,7 +165,7 @@ exports.updateUser = async (req, res) => {
   );
 
   if (req.body.avatar) {
-    fs.unlink(path.join(__dirname, "..", user.avatar), (err) => {
+    fs.unlink(path.join(__dirname, "..", "public", user.avatar), (err) => {
       if (err) {
         console.log(err);
       }

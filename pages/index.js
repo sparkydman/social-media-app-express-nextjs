@@ -28,7 +28,7 @@ const Index = ({ classes, auth }) => {
                 paper: classes.drawerPaper,
               }}
             >
-              <UserFeed auth />
+              <UserFeed auth={auth} />
             </Drawer>
           </Grid>
         </Grid>
