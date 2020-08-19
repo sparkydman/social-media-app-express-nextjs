@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 import Badge from "@material-ui/core/Badge";
 import Card from "@material-ui/core/Card";
 import CardHeader from "@material-ui/core/CardHeader";
@@ -15,8 +15,31 @@ import FavoriteBorder from "@material-ui/icons/FavoriteBorder";
 import withStyles from "@material-ui/core/styles/withStyles";
 import Link from "next/link";
 
-class Post extends Component {
-  state = {};
+class Post extends PureComponent {
+  state = {
+    isLiked: false,
+    numLikes: 0,
+    comments: [],
+  };
+
+  componentDidMount() {
+    this.setState({
+      isLiked: this.chekLiked(this.props.post.likes),
+      numLikes: this.props.post.likes.length,
+    });
+  }
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.post.likes.length !== this.props.post.likes.length) {
+      this.setState({
+        isLiked: this.chekLiked(this.props.post.likes),
+        numLikes: this.props.post.likes.length,
+      });
+    }
+  }
+
+  chekLiked = (likes) => likes.includes(this.props.auth.user._id);
+
   render() {
     const {
       classes,
@@ -24,7 +47,9 @@ class Post extends Component {
       auth,
       isDeleteingPost,
       handleDeletePost,
+      handleToggleLike,
     } = this.props;
+    const { isLiked, numLikes, comments } = this.state;
     const isPoster = post.postedBy._id === auth.user._id;
 
     return (
@@ -64,13 +89,20 @@ class Post extends Component {
 
         {/* post action */}
         <CardActions>
-          <IconButton className={classes.button}>
-            <Badge badgeContent={0} color="secondary">
-              <FavoriteBorder className={classes.favoriteIcon} />
+          <IconButton
+            className={classes.button}
+            onClick={() => handleToggleLike(post)}
+          >
+            <Badge badgeContent={numLikes} color="secondary">
+              {isLiked ? (
+                <Favorite className={classes.favoriteIcon} />
+              ) : (
+                <FavoriteBorder className={classes.favoriteIcon} />
+              )}
             </Badge>
           </IconButton>
           <IconButton className={classes.button}>
-            <Badge badgeContent={0} color="primary">
+            <Badge badgeContent={comments.length} color="primary">
               <Comment className={classes.commentIcon} />
             </Badge>
           </IconButton>

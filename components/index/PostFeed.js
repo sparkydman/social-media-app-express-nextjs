@@ -5,7 +5,13 @@ import withStyles from "@material-ui/core/styles/withStyles";
 import NewPost from "./NewPost";
 import Post from "./Post";
 
-import { addPost, getPostFeed, deletePost } from "../../lib/api";
+import {
+  addPost,
+  getPostFeed,
+  deletePost,
+  likePost,
+  unLikePost,
+} from "../../lib/api";
 class PostFeed extends Component {
   state = {
     posts: [],
@@ -83,6 +89,26 @@ class PostFeed extends Component {
       });
   };
 
+  handleToggleLike = (post) => {
+    const { auth } = this.props;
+
+    const isPostLiked = post.likes.includes(auth.user._id);
+    const sendRequest = isPostLiked ? unLikePost : likePost;
+    sendRequest(post._id)
+      .then((postData) => {
+        const postIndex = this.state.posts.findIndex(
+          (post) => post._id === postData._id
+        );
+        const updatedPosts = [
+          ...this.state.posts.slice(0, postIndex),
+          postData,
+          ...this.state.posts.slice(postIndex + 1),
+        ];
+        this.setState({ posts: updatedPosts });
+      })
+      .catch((err) => console.log(err));
+  };
+
   render() {
     const { classes, auth } = this.props;
     const { posts, text, image, isAddingPost, isDeletingPost } = this.state;
@@ -112,6 +138,7 @@ class PostFeed extends Component {
             post={post}
             isDeletingPost={isDeletingPost}
             handleDeletePost={this.handleDeletePost}
+            handleToggleLike={this.handleToggleLike}
           />
         ))}
       </div>
