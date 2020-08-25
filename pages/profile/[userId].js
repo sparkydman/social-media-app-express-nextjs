@@ -12,24 +12,38 @@ import Divider from "@material-ui/core/Divider";
 import Edit from "@material-ui/icons/Edit";
 import withStyles from "@material-ui/core/styles/withStyles";
 import { authInitialProps } from "../../lib/auth";
-import { getUser } from "../../lib/api";
+import {
+  getUser,
+  getPostsByUser,
+  deletePost,
+  likePost,
+  unLikePost,
+  addComment,
+  delComment,
+} from "../../lib/api";
 import Link from "next/link";
 import FollowUser from "../../components/profile/FollowUser";
 import DeleteUser from "../../components/profile/DeleteUser";
+import ProfileTabs from "../../components/profile/ProfileTabs";
+import format from "date-fns/format";
+
 class Profile extends React.Component {
   state = {
     user: null,
+    posts: [],
     isAuth: false,
     isFollowing: false,
     isLoading: true,
+    isDeletingPost: false,
   };
 
   componentDidMount() {
     const { userId, auth } = this.props;
-    const isAuth = auth.user._id === userId;
-    getUser(userId).then((user) => {
+    getUser(userId).then(async (user) => {
+      const isAuth = auth.user._id === userId;
       const isFollowing = this.checkFollow(auth, user);
-      this.setState({ user, isAuth, isLoading: false, isFollowing });
+      const posts = await getPostsByUser(userId);
+      this.setState({ user, isAuth, isLoading: false, isFollowing, posts });
     });
   }
 
@@ -41,16 +55,99 @@ class Profile extends React.Component {
   };
 
   toggleFollow = (sendRequest) => {
-    const { userId } = this.props;
+    const { userId, auth } = this.props;
     const { isFollowing } = this.state;
 
     sendRequest(userId).then(() =>
       this.setState({ isFollowing: !isFollowing })
     );
   };
+
+  handleDeletePost = (delPost) => {
+    this.setState({ isDeletingPost: true });
+    deletePost(delPost._id)
+      .then((postData) => {
+        const postIndex = this.state.posts.findIndex(
+          (post) => post._id === postData._id
+        );
+        const updatedPosts = [
+          ...this.state.posts.slice(0, postIndex),
+          ...this.state.posts.slice(postIndex + 1),
+        ];
+        this.setState({
+          posts: updatedPosts,
+          isDeletingPost: false,
+        });
+      })
+      .catch((err) => {
+        this.setState({ isDeletingPost: false });
+        console.log(err);
+      });
+  };
+
+  handleToggleLike = (post) => {
+    const { auth } = this.props;
+
+    const isPostLiked = post.likes.includes(auth.user._id);
+    const sendRequest = isPostLiked ? unLikePost : likePost;
+    sendRequest(post._id)
+      .then((postData) => {
+        const postIndex = this.state.posts.findIndex(
+          (post) => post._id === postData._id
+        );
+        const updatedPosts = [
+          ...this.state.posts.slice(0, postIndex),
+          postData,
+          ...this.state.posts.slice(postIndex + 1),
+        ];
+        this.setState({ posts: updatedPosts });
+      })
+      .catch((err) => console.log(err));
+  };
+
+  handleAddComment = (postId, text) => {
+    const comment = { text };
+    addComment(postId, comment)
+      .then((postData) => {
+        const postIndex = this.state.posts.findIndex(
+          (post) => post._id === postData._id
+        );
+        const updatedPosts = [
+          ...this.state.posts.slice(0, postIndex),
+          postData,
+          ...this.state.posts.slice(postIndex + 1),
+        ];
+        this.setState({ posts: updatedPosts });
+      })
+      .catch((err) => console.log(err));
+  };
+
+  handleDelComment = (postId, comment) => {
+    delComment(postId, comment)
+      .then((postData) => {
+        const postIndex = this.state.posts.findIndex(
+          (post) => post._id === postData._id
+        );
+        const updatedPosts = [
+          ...this.state.posts.slice(0, postIndex),
+          postData,
+          ...this.state.posts.slice(postIndex + 1),
+        ];
+        this.setState({ posts: updatedPosts });
+      })
+      .catch((err) => console.log(err));
+  };
+
   render() {
-    const { classes } = this.props;
-    const { isLoading, user, isAuth, isFollowing } = this.state;
+    const { classes, auth } = this.props;
+    const {
+      isLoading,
+      user,
+      posts,
+      isAuth,
+      isFollowing,
+      isDeletingPost,
+    } = this.state;
     // console.log(isFollowing);
     return (
       <Paper className={classes.root} elevation={4}>
@@ -80,7 +177,10 @@ class Profile extends React.Component {
               <ListItemText primary={user.name} secondary={user.email} />
               {isAuth ? (
                 <ListItemSecondaryAction>
-                  <Link href="/edit-profile/[userId]" as={`/edit-profile/${user._id}`}>
+                  <Link
+                    href="/edit-profile/[userId]"
+                    as={`/edit-profile/${user._id}`}
+                  >
                     <a>
                       <IconButton color="primary">
                         <Edit />
@@ -100,9 +200,23 @@ class Profile extends React.Component {
             <ListItem>
               <ListItemText
                 primary={user.about}
-                secondary={`Joined: ${user.createdAt}`}
+                secondary={`Joined: ${format(
+                  new Date(user.createdAt),
+                  "dd-MMM-yyyy"
+                )}`}
               />
             </ListItem>
+
+            <ProfileTabs
+              auth={auth}
+              posts={posts}
+              user={user}
+              isDeletingPost={isDeletingPost}
+              handleDeletePost={this.handleDeletePost}
+              handleToggleLike={this.handleToggleLike}
+              handleAddComment={this.handleAddComment}
+              handleDelComment={this.handleDelComment}
+            />
           </List>
         )}
       </Paper>

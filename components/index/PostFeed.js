@@ -11,6 +11,8 @@ import {
   deletePost,
   likePost,
   unLikePost,
+  addComment,
+  delComment,
 } from "../../lib/api";
 class PostFeed extends Component {
   state = {
@@ -109,6 +111,39 @@ class PostFeed extends Component {
       .catch((err) => console.log(err));
   };
 
+  handleAddComment = (postId, text) => {
+    const comment = { text };
+    addComment(postId, comment)
+      .then((postData) => {
+        const postIndex = this.state.posts.findIndex(
+          (post) => post._id === postData._id
+        );
+        const updatedPosts = [
+          ...this.state.posts.slice(0, postIndex),
+          postData,
+          ...this.state.posts.slice(postIndex + 1),
+        ];
+        this.setState({ posts: updatedPosts });
+      })
+      .catch((err) => console.log(err));
+  };
+
+  handleDelComment = (postId, comment) => {
+    delComment(postId, comment)
+      .then((postData) => {
+        const postIndex = this.state.posts.findIndex(
+          (post) => post._id === postData._id
+        );
+        const updatedPosts = [
+          ...this.state.posts.slice(0, postIndex),
+          postData,
+          ...this.state.posts.slice(postIndex + 1),
+        ];
+        this.setState({ posts: updatedPosts });
+      })
+      .catch((err) => console.log(err));
+  };
+
   render() {
     const { classes, auth } = this.props;
     const { posts, text, image, isAddingPost, isDeletingPost } = this.state;
@@ -139,6 +174,8 @@ class PostFeed extends Component {
             isDeletingPost={isDeletingPost}
             handleDeletePost={this.handleDeletePost}
             handleToggleLike={this.handleToggleLike}
+            handleAddComment={this.handleAddComment}
+            handleDelComment={this.handleDelComment}
           />
         ))}
       </div>

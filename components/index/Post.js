@@ -14,7 +14,9 @@ import Favorite from "@material-ui/icons/Favorite";
 import FavoriteBorder from "@material-ui/icons/FavoriteBorder";
 import withStyles from "@material-ui/core/styles/withStyles";
 import Link from "next/link";
+import formatDistance from "date-fns/formatDistance";
 
+import Comments from "./Comments";
 class Post extends PureComponent {
   state = {
     isLiked: false,
@@ -26,6 +28,7 @@ class Post extends PureComponent {
     this.setState({
       isLiked: this.chekLiked(this.props.post.likes),
       numLikes: this.props.post.likes.length,
+      comments: this.props.post.comments,
     });
   }
 
@@ -34,6 +37,11 @@ class Post extends PureComponent {
       this.setState({
         isLiked: this.chekLiked(this.props.post.likes),
         numLikes: this.props.post.likes.length,
+      });
+    }
+    if (prevProps.post.comments.length !== this.props.post.comments.length) {
+      this.setState({
+        comments: this.props.post.comments,
       });
     }
   }
@@ -48,6 +56,8 @@ class Post extends PureComponent {
       isDeleteingPost,
       handleDeletePost,
       handleToggleLike,
+      handleAddComment,
+      handleDelComment,
     } = this.props;
     const { isLiked, numLikes, comments } = this.state;
     const isPoster = post.postedBy._id === auth.user._id;
@@ -72,7 +82,9 @@ class Post extends PureComponent {
               <a>{post.postedBy.name}</a>
             </Link>
           }
-          subheader={post.createdAt}
+          subheader={formatDistance(new Date(post.createdAt), new Date(), {
+            addSuffix: true,
+          })}
           className={classes.cardHeader}
         />
         <CardContent className={classes.cardContent}>
@@ -110,6 +122,13 @@ class Post extends PureComponent {
         <Divider />
 
         {/* comments area */}
+        <Comments
+          auth={auth}
+          postId={post._id}
+          comments={comments}
+          handleAddComment={handleAddComment}
+          handleDelComment={handleDelComment}
+        />
       </Card>
     );
   }
