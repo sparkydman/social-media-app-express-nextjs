@@ -56,10 +56,17 @@ exports.getPostsByUser = async (req, res) => {
 };
 
 exports.getPostFeed = async (req, res) => {
-  const { following, _id } = req.profile;
+  const { following, followers, _id } = req.profile;
   following.push(_id);
   const posts = await Post.find({
-    postedBy: { $in: following },
+    $or: [
+      {
+        postedBy: { $in: following },
+      },
+      {
+        postedBy: { $in: followers },
+      },
+    ],
   }).sort({ updatedAt: "desc" });
   res.json(posts);
 };

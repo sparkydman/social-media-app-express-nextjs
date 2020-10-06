@@ -78,7 +78,7 @@ exports.addFollower = async (req, res) => {
 
   const user = await User.findByIdAndUpdate(
     { _id: followId },
-    { $push: { following: req.user._id } },
+    { $push: { followers: req.user._id } },
     { new: true }
   );
   res.status(200).json(user);
@@ -99,7 +99,7 @@ exports.delFollower = async (req, res) => {
 
   const user = await User.findByIdAndUpdate(
     { _id: followId },
-    { $pull: { following: req.user._id } },
+    { $pull: { followers: req.user._id } },
     { new: true }
   );
   res.status(200).json(user);
@@ -165,11 +165,13 @@ exports.updateUser = async (req, res) => {
   );
 
   if (req.body.avatar) {
-    fs.unlink(path.join(__dirname, "..", "public", user.avatar), (err) => {
-      if (err) {
-        console.log(err);
-      }
-    });
+    if (user.avatar !== "/profile-image.jpg") {
+      fs.unlink(path.join(__dirname, "..", "public", user.avatar), (err) => {
+        if (err) {
+          console.log(err);
+        }
+      });
+    }
   }
   res.json(updatedUser);
 };

@@ -30,7 +30,7 @@ class EditProfile extends React.Component {
     avatar: "",
     previewImg: "",
     updatedUser: null,
-    isSaving: true,
+    isSaving: false,
     openError: false,
     openSuccess: false,
     error: "",
@@ -70,6 +70,7 @@ class EditProfile extends React.Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
+    this.setState({ isSaving: true });
     updateUser(this.state._id, this.userForm)
       .then((updatedUser) => {
         this.setState({ updatedUser, openSuccess: true }, () => {
