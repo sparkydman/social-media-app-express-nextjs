@@ -6,10 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "build": "next build",
-    "deploy": "vercel --public",
-    "alias": "vercel alias",
-    "remove:deploy": "vercel rm next-connect-resful"
+    "build": "next build"
   },
   "author": "Chigozie Ugwuede",
   "license": "ISC",
