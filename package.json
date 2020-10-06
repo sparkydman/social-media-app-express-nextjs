@@ -7,9 +7,9 @@
     "start": "node app.js",
     "dev": "nodemon app.js",
     "build": "next build",
-    "deploy": "now --public",
-    "alias": "now alias",
-    "remove:deploy": "now rm next-connect-resful"
+    "deploy": "vercel --public",
+    "alias": "vercel alias",
+    "remove:deploy": "vercel rm next-connect-resful"
   },
   "author": "Chigozie Ugwuede",
   "license": "ISC",
