@@ -7,6 +7,7 @@ const session = require("express-session");
 const expressValidator = require("express-validator");
 const passport = require("passport");
 const MongoStoreSession = require("connect-mongo")(session);
+const cors = require("cors");
 
 // Load all the models so to be ablee to use singleton object
 require("./models/Post");
@@ -42,6 +43,8 @@ mongoose.connection.on("error", (err) =>
 nxtApp.prepare().then(() => {
   // Initialize express
   const app = express();
+
+  app.use(cors("*"));
 
   // Add JSON middleware
   app.use(express.json());
