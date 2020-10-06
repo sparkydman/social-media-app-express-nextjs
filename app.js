@@ -44,7 +44,7 @@ nxtApp.prepare().then(() => {
   // Initialize express
   const app = express();
 
-  app.use(cors("*"));
+  app.use(cors());
 
   // Add JSON middleware
   app.use(express.json());
@@ -59,10 +59,6 @@ nxtApp.prepare().then(() => {
   app.get("/_next/*", (req, res) => {
     handle(req, res);
   });
-
-  // app.get("/public/*", (req, res) => {
-  //   handle(req, res);
-  // });
 
   app.use(
     session({
