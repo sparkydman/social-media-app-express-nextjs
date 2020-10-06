@@ -57,9 +57,9 @@ nxtApp.prepare().then(() => {
     handle(req, res);
   });
 
-  app.get("/public/*", (req, res) => {
-    handle(req, res);
-  });
+  // app.get("/public/*", (req, res) => {
+  //   handle(req, res);
+  // });
 
   app.use(
     session({
@@ -100,12 +100,6 @@ nxtApp.prepare().then(() => {
     const { status = 500, message } = err;
     res.status(status).json(message);
   });
-
-  /* create custom routes with route params */
-  // app.get("/profile/:userId", (req, res) => {
-  //   const routeParams = Object.assign({}, req.params, req.query);
-  //   return app.render(req, res, "/profile", routeParams);
-  // });
 
   /* default route
      - allows Next to handle all other routes
